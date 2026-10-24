@@ -12,7 +12,7 @@ The site is plain HTML/CSS/JavaScript with no runtime packages. Open `index.html
 2. Set **Build command** to `npm run build` and **Output directory** to `dist`.
 3. Configure the Pages project environment variables/secrets below. The `functions/api/inquiry.js` Cloudflare Pages Function is deployed from the root `functions/` directory.
 4. Verify the Resend sender domain before enabling the form. Submit a **real test enquiry** to verify delivery; check spam folder and reply flow.
-5. Connect the business's chosen domain, confirm ownership, then update Open Graph URL metadata and consider adding a sitemap with that verified domain.
+5. Canonical domain: `https://concierge.bahamasaisolutions.com`. Verify the URL resolves and then inspect the sitemap and service-page responses.
 
 ### Required environment variables for enquiries
 
@@ -44,8 +44,10 @@ Five enquiry categories: yachts/island experiences, wellness, private dining, tr
 
 Search-intent pages are pre-rendered as static HTML at build time using `content/pages.mjs` and `scripts/build.mjs`: five service pages, a Nassau/Paradise Island destination page, a private aviation **ground-arrivals** page, founder information and a partner enquiries page. Each page includes unique metadata, headings, informative content, internal links, request CTAs, Organization/WebPage/BreadcrumbList JSON-LD, and Service markup where applicable.
 
-**Set `SITE_URL=https://your-verified-domain.com` in Cloudflare Pages build environment after you connect and verify your chosen custom domain.** This adds absolute canonical URLs, `og:url`, `sitemap.xml` and the sitemap entry in `robots.txt`. When the domain isn't established yet, we intentionally withhold these signals rather than inject an invented public URL. Rebuild after setting the variable. Run `npm run check` to validate both build modes. No sitemap or canonical claiming a domain is included in the repo by default.
+**Production domain is `https://concierge.bahamasaisolutions.com` (default when `SITE_URL` is unset).** This adds absolute canonical URLs, `og:url`, `sitemap.xml` and the sitemap entry in `robots.txt`. Set `SITE_URL` only if moving the production website to a different verified origin. The default build emits the full sitemap and absolute canonicals. Run `npm run check` to validate default and override modes.
 
 The generated routes are real `dist/<slug>/index.html` files (Cloudflare Pages directory paths), not client-only JavaScript routes. The existing privacy page is excluded from the sitemap and marked `noindex,follow` in built output.
+
+Root-serving deployments are supported by an additional workflow that commits generated service pages, sitemap, robots and a real `404.html` to the repository root. **Preferred Cloudflare Pages settings remain build command `npm run build`, output folder `dist`**; root mirroring is a safety net for the existing deployment.
 
 After deployment: verify actual HTTP status codes for every route, test the request form end to end with configured email secrets, replace illustrative stock media with licensed/owned Bahamas imagery, confirm responsive image performance, validate structured data, set up Search Console, submit the sitemap and monitor indexation. See `SEO_AUDIT.md` for competitive research and remaining gaps.

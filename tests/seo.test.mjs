@@ -35,8 +35,18 @@ test('all landing pages are crawlable, unique and linked from the home page', ()
     if(page.service) assert.ok(graph['@graph'].some(node=>node['@type']==='Service'));
     assert.match(html,/\/\?service=/);
   }
-  assert.ok(!existsSync(new URL('../dist/sitemap.xml',import.meta.url)),'No unverified sitemap');
-  assert.doesNotMatch(home,/rel="canonical"/);
+  const defaultOrigin='https://concierge.bahamasaisolutions.com';
+  assert.ok(read('sitemap.xml').includes(`<loc>${defaultOrigin}/</loc>`));
+  assert.ok(read('robots.txt').includes(`Sitemap: ${defaultOrigin}/sitemap.xml`));
+  assert.ok(home.includes(`rel="canonical" href="${defaultOrigin}/"`));
+  assert.equal((home.match(/rel="canonical"/g)||[]).length,1);
+  for (const page of pages) {
+    const html=read(page.path.slice(1)+'index.html');
+    assert.ok(html.includes(`rel="canonical" href="${defaultOrigin}${page.path}"`));
+    assert.ok(read('sitemap.xml').includes(`<loc>${defaultOrigin}${page.path}</loc>`));
+  }
+  assert.match(read('404.html'),/noindex,follow/);
+  assert.match(read('privacy.html'),/noindex,follow/);
 });
 
 test('verified SITE_URL enables exact canonical URLs, sitemap and robots reference', () => {

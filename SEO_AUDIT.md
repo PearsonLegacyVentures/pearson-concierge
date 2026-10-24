@@ -53,3 +53,9 @@ Avoid creating near-identical destination doorway pages without location-specifi
 6. Evaluate search impressions, enquiries and qualified bookings after indexing; optimize based on actual conversion data, not estimated keyword volumes.
 
 SEO reference: https://developers.google.com/search/docs/fundamentals/seo-starter-guide and https://developers.google.com/search/docs/appearance/structured-data/local-business.
+
+## Live-domain follow-up — October 23, 2026
+
+Production host supplied by owner: `https://concierge.bahamasaisolutions.com`. Live fetch independently verified that `/sitemap.xml` and `/services/private-yacht-charters-bahamas/` both returned the homepage content. This is consistent with Cloudflare Pages serving the repository root instead of the generated `dist/` directory. The route behavior is a live observation; the exact Cloudflare settings cannot be confirmed without dashboard access.
+
+Changes: pin this production host as the default canonical and sitemap origin, create an actual `404.html`, and add a GitHub workflow that mirrors the generated static routes into the repository root to support both deployment configurations. Existing missing-form guards for JavaScript on subpages were inspected and retained. Preferred Cloudflare configuration is `npm run build` with output `dist`. Verify the actual live HTTP responses following the next successful deployment; committing code alone does not prove deployment.

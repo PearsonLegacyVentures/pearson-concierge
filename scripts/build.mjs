@@ -4,7 +4,7 @@ import { pages } from '../content/pages.mjs';
 const out = new URL('../dist/', import.meta.url);
 const root = new URL('../', import.meta.url);
 const servicePages = pages.filter(page => page.service);
-const urlEnv = process.env.SITE_URL?.trim() || '';
+const urlEnv = process.env.SITE_URL?.trim() || 'https://concierge.bahamasaisolutions.com';
 const siteUrl = urlEnv ? validSiteUrl(urlEnv) : '';
 
 function validSiteUrl(value) {
@@ -83,13 +83,17 @@ let html = await readFile(home,'utf8');
 const htitle = 'Bahamas Luxury Concierge Services | Pearson Concierge';
 const hdesc = 'Private concierge services in Nassau and Paradise Island, Bahamas. Arrange yacht days, in-villa massage, private chefs, airport transfers and villa provisioning.';
 const homeSchema = [{ '@type':'Organization',name:'Pearson Concierge',description:hdesc,founder:{'@type':'Person',name:'Amar Pearson'},areaServed:[{'@type':'Place',name:'Nassau, The Bahamas'},{'@type':'Place',name:'Paradise Island, The Bahamas'}],...(siteUrl?{url:siteUrl}:{})},{'@type':'WebSite',name:'Pearson Concierge',...(siteUrl?{url:siteUrl}:{})}];
-// Home HTML already has meta tags. Add only the missing SEO metadata and graph.
-html=html.replace('</head>', `${siteUrl?`<link rel="canonical" href="${escapeHtml(siteUrl)}/"/><meta property="og:url" content="${escapeHtml(siteUrl)}/"/>`:''}<meta property="og:site_name" content="Pearson Concierge"/><meta name="twitter:card" content="summary_large_image"/><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@graph':homeSchema})}</script></head>`);
+// The source home may already be SEO-enriched for root deployments. Keep rebuilds idempotent.
+html=html.replace(/<!-- SEO-OUTPUT-START -->[\s\S]*?<!-- SEO-OUTPUT-END -->/g,'');
+html=html.replace('</head>', `<!-- SEO-OUTPUT-START -->` + `${siteUrl?`<link rel="canonical" href="${escapeHtml(siteUrl)}/"/><meta property="og:url" content="${escapeHtml(siteUrl)}/"/>`:''}<meta property="og:site_name" content="Pearson Concierge"/><meta name="twitter:card" content="summary_large_image"/><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@graph':homeSchema})}</script><!-- SEO-OUTPUT-END --></head>`);
 await writeFile(home,html);
 let privacy=await readFile(new URL('privacy.html',out),'utf8');
 privacy=privacy.replace('content="index,follow"','content="noindex,follow"');
-if(siteUrl) privacy=privacy.replace('</head>',`<link rel="canonical" href="${escapeHtml(siteUrl)}/privacy.html"/></head>`);
+if(siteUrl) privacy=privacy.replace(/<link rel="canonical" href="[^"]+"\s*\/>/g,'');
+privacy=privacy.replace('</head>',`<link rel="canonical" href="${escapeHtml(siteUrl)}/privacy.html"/></head>`);
 await writeFile(new URL('privacy.html',out),privacy);
+const notFound = `<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="robots" content="noindex,follow"/><title>Page Not Found | Pearson Concierge</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="stylesheet" href="/styles.css"/></head><body><a class="skip-link" href="#main">Skip to content</a>${nav}<main id="main"><section class="page-hero"><div class="container"><span class="eyebrow">PAGE NOT FOUND</span><h1>This page isn't available.</h1><p>Return to Pearson Concierge to explore private services in Nassau and Paradise Island.</p><div class="page-actions"><a class="btn btn-cream" href="/">Back to homepage <span aria-hidden="true">↗</span></a></div></div></section></main>${footer}</body></html>`;
+await writeFile(new URL('404.html',out),notFound);
 const urls=['/',...pages.map(p=>p.path)];
 const robots='User-agent: *\nAllow: /\n'+(siteUrl?`Sitemap: ${siteUrl}/sitemap.xml\n`:'');
 await writeFile(new URL('robots.txt',out),robots);
