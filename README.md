@@ -39,3 +39,13 @@ Five enquiry categories: yachts/island experiences, wellness, private dining, tr
 ## Tests
 
 `npm test` covers input validation, honeypot, origin restrictions, missing provider configuration, expected mail payload, provider success, and unsupported requests. `npm run build` assembles the deployable static output.
+
+## Search optimization and landing pages
+
+Search-intent pages are pre-rendered as static HTML at build time using `content/pages.mjs` and `scripts/build.mjs`: five service pages, a Nassau/Paradise Island destination page, a private aviation **ground-arrivals** page, founder information and a partner enquiries page. Each page includes unique metadata, headings, informative content, internal links, request CTAs, Organization/WebPage/BreadcrumbList JSON-LD, and Service markup where applicable.
+
+**Set `SITE_URL=https://your-verified-domain.com` in Cloudflare Pages build environment after you connect and verify your chosen custom domain.** This adds absolute canonical URLs, `og:url`, `sitemap.xml` and the sitemap entry in `robots.txt`. When the domain isn't established yet, we intentionally withhold these signals rather than inject an invented public URL. Rebuild after setting the variable. Run `npm run check` to validate both build modes. No sitemap or canonical claiming a domain is included in the repo by default.
+
+The generated routes are real `dist/<slug>/index.html` files (Cloudflare Pages directory paths), not client-only JavaScript routes. The existing privacy page is excluded from the sitemap and marked `noindex,follow` in built output.
+
+After deployment: verify actual HTTP status codes for every route, test the request form end to end with configured email secrets, replace illustrative stock media with licensed/owned Bahamas imagery, confirm responsive image performance, validate structured data, set up Search Console, submit the sitemap and monitor indexation. See `SEO_AUDIT.md` for competitive research and remaining gaps.

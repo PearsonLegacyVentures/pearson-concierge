@@ -3,26 +3,22 @@
   const menuButton = document.querySelector('.menu-toggle');
   const mobileNav = document.querySelector('.mobile-nav');
   const form = document.querySelector('#enquiry-form');
-  const serviceField = document.querySelector('#service');
+  const year = document.querySelector('#year');
+  if (year) year.textContent = String(new Date().getFullYear());
+  if (menuButton && mobileNav) {
+    function closeMenu() { menuButton.setAttribute('aria-expanded','false'); menuButton.setAttribute('aria-label','Open navigation'); mobileNav.hidden = true; }
+    menuButton.addEventListener('click', () => { const open = menuButton.getAttribute('aria-expanded') !== 'true'; menuButton.setAttribute('aria-expanded',String(open)); menuButton.setAttribute('aria-label', open?'Close navigation':'Open navigation'); mobileNav.hidden = !open; });
+    mobileNav.querySelectorAll('a').forEach(link => link.addEventListener('click',closeMenu));
+    document.addEventListener('keydown',event => { if(event.key==='Escape') closeMenu(); });
+  }
+  if (!form) return;
+  const serviceField = form.querySelector('#service');
   const status = document.querySelector('.form-status');
   const fallback = document.querySelector('.request-fallback');
   const submit = form.querySelector('[type="submit"]');
   const copyButton = document.querySelector('.copy-request');
-  document.querySelector('#year').textContent = String(new Date().getFullYear());
-
-  function closeMenu() {
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'Open navigation');
-    mobileNav.hidden = true;
-  }
-  menuButton.addEventListener('click', () => {
-    const opening = menuButton.getAttribute('aria-expanded') !== 'true';
-    menuButton.setAttribute('aria-expanded', String(opening));
-    menuButton.setAttribute('aria-label', opening ? 'Close navigation' : 'Open navigation');
-    mobileNav.hidden = !opening;
-  });
-  document.querySelectorAll('.mobile-nav a').forEach(link => link.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+  const requestedService = new URLSearchParams(window.location.search).get('service');
+  if(requestedService && [...serviceField.options].some(option => option.value === requestedService)) serviceField.value=requestedService;
 
   document.querySelectorAll('a[data-service]').forEach(link => link.addEventListener('click', () => {
     serviceField.value = link.dataset.service;
